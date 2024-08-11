@@ -1,0 +1,48 @@
+from netmiko import ConnectHandler
+
+file = open('D:/MMC-HC/BMS/07_12_2023_Acivity/access_check_input.csv','r')
+file1 = open('D:/MMC-HC/BMS/07_12_2023_Acivity/access_port_check_mac.txt','w')
+
+j = ""
+count = 0
+
+
+def commandset(count):
+    command_array = []
+    command_array.append("do write")
+    return(command_array) # add the new commands on return value
+
+for i in file:
+    x = i.split(",")
+    count = count + 1
+    count1 = count - 1
+    if x[0] != j:
+        if x[0] != j and count != 1:
+            net_connect.disconnect()
+        j = x[0]
+        cisco = {
+            "device_type" : "cisco_ios",
+            "host" : x[0].strip(),
+            "username" : "mannaiuser1",
+            "password" : "Cr!cket_2024",
+            "secret" : "cisco123",
+        }
+        print(x[0])
+#        print(command)
+#        print(commandset(count1))
+        net_connect = ConnectHandler(**cisco)
+        net_connect.enable()
+        command = "show mac address-table interface " + x[1].strip()
+        output = net_connect.send_command(command)
+        file1.writelines(x[0] + "\n")
+        file1.writelines(x[1].strip() + "\n")
+        file1.writelines(output)
+        file1.writelines("\n")
+    else:
+        command  = "show mac address-table interface " + x[1].strip()
+        output = net_connect.send_command(command)
+        file1.writelines(x[1].strip() + "\n")
+        file1.writelines(output)
+        file1.writelines("\n")
+file1.close()
+file.close()
